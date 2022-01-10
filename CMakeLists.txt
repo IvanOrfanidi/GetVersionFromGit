@@ -18,7 +18,7 @@ execute_process(
 string(STRIP "${GIT_TAG}" GIT_TAG)
 string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
 
-if (${GIT_BRANCH} STREQUAL "master")
+if (${GIT_BRANCH} STREQUAL "release")
     file(READ ${PROJECT_SOURCE_DIR}/package.xml PACKAGE)
 
     string(FIND "${PACKAGE}" "<version>" BEGIN_VERSION)
