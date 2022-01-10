@@ -40,7 +40,6 @@ endif()
 # Source files
 set(SOURCES
     source/main.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 )
 
 # Compiling target
