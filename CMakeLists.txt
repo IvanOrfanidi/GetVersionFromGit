@@ -4,15 +4,38 @@ cmake_minimum_required(VERSION 3.10)
 # Project name
 project(get_version_from_git)
 
-# Add a custom command that produces version.cpp, plus
-# a dummy output that's not actually produced, in order
-# to force version.cmake to always be re-run before the build
-ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
-           ${CMAKE_CURRENT_BINARY_DIR}/_version.cpp
-    COMMAND ${CMAKE_COMMAND} -P
-            ${CMAKE_CURRENT_SOURCE_DIR}/version.cmake
-)
+## Set new version in package.xml ##
+execute_process(
+    COMMAND git describe --exact-match --tags
+                OUTPUT_VARIABLE GIT_TAG
+                ERROR_QUIET)
+
+execute_process(
+    COMMAND git rev-parse --abbrev-ref HEAD
+            OUTPUT_VARIABLE GIT_BRANCH
+            ERROR_QUIET)
+
+string(STRIP "${GIT_TAG}" GIT_TAG)
+string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
+
+if (${GIT_BRANCH} STREQUAL "master")
+    file(READ ${PROJECT_SOURCE_DIR}/package.xml PACKAGE)
+
+    string(FIND "${PACKAGE}" "<version>" BEGIN_VERSION)
+    string(FIND "${PACKAGE}" "</version>" END_VERSION)
+
+    math(EXPR BEGIN_VERSION "${BEGIN_VERSION}+9")
+    math(EXPR LENGTH "${END_VERSION}-${BEGIN_VERSION}")
+
+    string(SUBSTRING "${PACKAGE}" ${BEGIN_VERSION} ${LENGTH} OLD_VERSION)
+
+    set(NEW_VERSION ${GIT_TAG})
+    string(REPLACE "${OLD_VERSION}" ${NEW_VERSION} PACKAGE ${PACKAGE})
+
+    file(WRITE ${PROJECT_SOURCE_DIR}/package.xml ${PACKAGE})
+
+    message("version: " ${NEW_VERSION})
+endif()
 
 # Source files
 set(SOURCES

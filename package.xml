@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>drone</name>
+  <version>1.1.26</version>
+  <description>The drone package for dji matrice 300</description>
+
+  <maintainer email="i.marchukov@gaskar.group">Ivan Marchukov</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>dji_osdk_ros</depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+
+</package>
