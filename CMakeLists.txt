@@ -35,7 +35,7 @@ if ("release" STREQUAL "${GIT_BRANCH}")
         set(NEW_VERSION ${GIT_TAG})
         string(REPLACE "${OLD_VERSION}" ${NEW_VERSION} PACKAGE ${PACKAGE})
         file(WRITE ${PROJECT_SOURCE_DIR}/package.xml ${PACKAGE})
-        message(STATUS "Package version " ${NEW_VERSION})
+        message("Package version " ${NEW_VERSION})
     endif()
 endif()
 
