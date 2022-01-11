@@ -18,7 +18,7 @@ execute_process(
 string(STRIP "${GIT_TAG}" GIT_TAG)
 string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
 
-if (("release" STREQUAL "${GIT_BRANCH}") AND NOT ("" STREQUAL "${GIT_TAG}"))
+if ("release" STREQUAL "${GIT_BRANCH}")
     file(READ ${PROJECT_SOURCE_DIR}/package.xml PACKAGE)
 
     string(FIND "${PACKAGE}" "<version>" BEGIN_VERSION)
@@ -29,12 +29,14 @@ if (("release" STREQUAL "${GIT_BRANCH}") AND NOT ("" STREQUAL "${GIT_TAG}"))
 
     string(SUBSTRING "${PACKAGE}" ${BEGIN_VERSION} ${LENGTH} OLD_VERSION)
 
-    set(NEW_VERSION ${GIT_TAG})
-    string(REPLACE "${OLD_VERSION}" ${NEW_VERSION} PACKAGE ${PACKAGE})
-
-    file(WRITE ${PROJECT_SOURCE_DIR}/package.xml ${PACKAGE})
-
-    message("version: " ${NEW_VERSION})
+    if ("" STREQUAL "${GIT_TAG}")
+        message(FATAL_ERROR "Release branch cannot be without a tag")
+    elseif()
+        set(NEW_VERSION ${GIT_TAG})
+        string(REPLACE "${OLD_VERSION}" ${NEW_VERSION} PACKAGE ${PACKAGE})
+        file(WRITE ${PROJECT_SOURCE_DIR}/package.xml ${PACKAGE})
+        message(STATUS "New version: " ${NEW_VERSION})
+    endif()
 endif()
 
 # Source files
