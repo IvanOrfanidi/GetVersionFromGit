@@ -6,8 +6,6 @@ extern const char* GIT_BRANCH;
 
 int main()
 {
-    std::cout << "git branch: \'" << GIT_BRANCH << '\'' << std::endl;
-    std::cout << "git revision: \'" << GIT_REV << '\'' << std::endl;
-    std::cout << "git tag: \'" << GIT_TAG << '\'' << std::endl;
+    std::cout << "Hello git version!" << std::endl;
     return EXIT_SUCCESS;
 }

@@ -1,41 +1,69 @@
 stages:
   - checking
-  - building
+  - versioning
   - docker
+  - notify
 
 clang-format:
   stage: checking
+  tags:
+    - arm
+  image: $NEXUS_REGISTRY/drone_osdk_ros
   script:
-    - git clone http://git.home.lan/root/check-clang-format.git
-    - cp check-clang-format/check-clang-format.py .
-    - python3 check-clang-format.py -r .
+    - wget https://nexus.aniklab.com/repository/filestore/drone/check-clang-format.py
+    - python check-clang-format.py -r .
 
-gcc:
-  stage: building
+update-version:
+  stage: versioning
+  tags:
+      - arm
+  only:
+    - release
+  image: $NEXUS_REGISTRY/drone_osdk_ros
   script:
     - mkdir build
     - cd build
-    - cmake -G "Unix Makefiles"
-      -DCMAKE_C_COMPILER=gcc
-      -DCMAKE_CXX_COMPILER=g++
-      -DCMAKE_BUILD_TYPE=Release
-      ..
-    - cmake --build .
+    - cmake ..
+    - cd ..
+    - git add package.xml
+    - git commit -m "Test"
 
-clang:
-  stage: building
+build_with_tests_and_run_tests:
+  stage: build
+  tags:
+    - arm
+  image: $NEXUS_REGISTRY/drone_osdk_ros
   script:
-    - mkdir build
-    - cd build
-    - cmake -G "Unix Makefiles"
-      -DCMAKE_C_COMPILER=clang
-      -DCMAKE_CXX_COMPILER=clang++
-      -DCMAKE_BUILD_TYPE=Release
-      ..
-    - cmake --build .
+    - echo "current dir $(pwd) files $(ls)"
+    - mkdir -p /home/buildenv/catkin_ws/src/drone
+    - cp ./* -r /home/buildenv/catkin_ws/src/drone
+    - cd /home/buildenv/catkin_ws
+    - source /opt/ros/$(ls /opt/ros)/setup.bash
+    - roscore & catkin_make run_tests --cmake-args -DBUILD_UNIT_TESTS=ON
+    - ./devel/lib/drone/drone_tests
+  except:
+    - release
 
-ubuntu-18.04:
-  stage: docker
-  script:
-    - docker build -t get_version_from_git:latest .
-    - docker run --rm get_version_from_git
+on_success:
+  stage: notify
+  tags:
+    - ia64
+  only:
+    - release
+  image: docker.dev.ask-glonass.ru/telegram
+  variables:
+    GIT_STRATEGY: none
+  when: on_success
+  script: notify_ok
+
+on_fail:
+  stage: notify
+  tags:
+    - ia64
+  only:
+    - release
+  image: docker.dev.ask-glonass.ru/telegram
+  variables:
+    GIT_STRATEGY: none
+  when: on_failure
+  script: notify_fail
