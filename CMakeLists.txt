@@ -31,11 +31,11 @@ if ("release" STREQUAL "${GIT_BRANCH}")
 
     if ("" STREQUAL "${GIT_TAG}")
         message(FATAL_ERROR "Release branch cannot be without a tag")
-    elseif()
+    else()
         set(NEW_VERSION ${GIT_TAG})
         string(REPLACE "${OLD_VERSION}" ${NEW_VERSION} PACKAGE ${PACKAGE})
         file(WRITE ${PROJECT_SOURCE_DIR}/package.xml ${PACKAGE})
-        message(STATUS "New version: " ${NEW_VERSION})
+        message(STATUS "Package version " ${NEW_VERSION})
     endif()
 endif()
 
