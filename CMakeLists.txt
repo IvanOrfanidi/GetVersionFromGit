@@ -18,6 +18,28 @@ execute_process(
 string(STRIP "${GIT_TAG}" GIT_TAG)
 string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
 
+execute_process(
+    COMMAND git log
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_LOG
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+string(ASCII 27 ESC)
+string(REGEX REPLACE "\n" "${ESC};" COMMITS "${GIT_LOG}")
+
+set(CHANGELOG "#CHANGELOG\n")
+foreach(LINE ${COMMITS})
+    if("${LINE}" MATCHES "commit " OR
+        "${LINE}" MATCHES "Author: " OR
+        "${LINE}" MATCHES "Date: ")
+    continue()
+    endif()
+
+    string(REGEX REPLACE "${ESC}" "\n" LINE ${LINE})
+    set(CHANGELOG "${CHANGELOG}${LINE}")
+endforeach()
+file(WRITE ${PROJECT_SOURCE_DIR}/CHANGELOG.md ${CHANGELOG})
+
 if ("release" STREQUAL "${GIT_BRANCH}")
     file(READ ${PROJECT_SOURCE_DIR}/package.xml PACKAGE)
 
@@ -37,6 +59,9 @@ if ("release" STREQUAL "${GIT_BRANCH}")
         file(WRITE ${PROJECT_SOURCE_DIR}/package.xml ${PACKAGE})
         message("Package version " ${NEW_VERSION})
     endif()
+
+
+
 endif()
 
 # Source files
